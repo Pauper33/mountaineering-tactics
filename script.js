@@ -22,10 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const openBtn = document.getElementById('openBtn');
     const fileInput = document.getElementById('fileInput');
     const exportBtn = document.getElementById('exportBtn');
+    const addColBtn = document.getElementById('addColBtn');
+    const removeColBtn = document.getElementById('removeColBtn');
     const sidebar = document.getElementById('sidebar');
     const controls = document.querySelector('.controls');
 
-    if (!table || !addRowBtn || !sidebar || !saveBtn || !openBtn || !fileInput || !exportBtn || !controls) {
+    if (!table || !addRowBtn || !sidebar || !saveBtn || !openBtn || !fileInput || !exportBtn || !controls || !addColBtn || !removeColBtn) {
         console.error("Required element not found!");
         return;
     }
@@ -156,13 +158,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the "Add Row" button
     addRowBtn.addEventListener('click', () => {
         const newRow = tableBody.insertRow();
-        const columnCount = table.querySelector('thead tr').childElementCount - 1; // -1 for actions column
+        // Get column count from the header, minus "Actions"
+        const columnCount = table.querySelector('thead tr').childElementCount - 1;
 
         for (let i = 0; i < columnCount; i++) {
             const newCell = newRow.insertCell();
-            newCell.textContent = 'New Data'; // Default text
+            newCell.textContent = 'Data'; // Default text
         }
         addRemoveButton(newRow);
+    });
+
+    // --- Add/Remove Column Functionality ---
+    addColBtn.addEventListener('click', () => {
+        const headerRow = table.querySelector('thead tr');
+        const headerCells = headerRow.querySelectorAll('th');
+        // Get the second to last header (the last numbered one)
+        const lastHeader = headerCells[headerCells.length - 2];
+        const newColNumber = parseInt(lastHeader.textContent, 10) + 1;
+
+        // Add new header cell
+        const newHeader = document.createElement('th');
+        newHeader.textContent = newColNumber;
+        headerRow.insertBefore(newHeader, headerRow.lastElementChild);
+
+        // Add new cell to each body row
+        tableBody.querySelectorAll('tr').forEach(row => {
+            const newCell = row.insertCell(row.cells.length - 1);
+            newCell.textContent = 'Data';
+        });
+    });
+
+    removeColBtn.addEventListener('click', () => {
+        const headerRow = table.querySelector('thead tr');
+        const headerCells = headerRow.querySelectorAll('th');
+
+        // Prevent removing the last data column
+        if (headerCells.length <= 2) {
+            alert("Cannot remove the last column.");
+            return;
+        }
+
+        // Remove the second to last header cell
+        headerCells[headerCells.length - 2].remove();
+
+        // Remove the corresponding cell from each body row
+        tableBody.querySelectorAll('tr').forEach(row => {
+            row.deleteCell(row.cells.length - 2);
+        });
     });
 
     // --- Export as PNG ---
@@ -297,9 +339,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Rebuild Table from Data
     const rebuildTable = (data) => {
-        // Clear existing table body
+        const tableHead = table.querySelector('thead');
+
+        // Clear existing table
+        tableHead.innerHTML = '';
         tableBody.innerHTML = '';
 
+        if (data.length === 0) {
+            return; // Don't rebuild if there's no data
+        }
+
+        // --- Rebuild Header ---
+        const headerRow = tableHead.insertRow();
+        const columnCount = data[0].length; // Get column count from first row of data
+        for (let i = 0; i < columnCount; i++) {
+            const newHeader = document.createElement('th');
+            newHeader.textContent = i + 1;
+            headerRow.appendChild(newHeader);
+        }
+        // Add "Actions" header
+        const actionsHeader = document.createElement('th');
+        actionsHeader.textContent = 'Actions';
+        headerRow.appendChild(actionsHeader);
+
+        // --- Rebuild Body ---
         data.forEach(rowData => {
             const newRow = tableBody.insertRow();
             rowData.forEach(cellData => {
