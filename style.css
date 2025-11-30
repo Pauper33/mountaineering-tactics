@@ -1,19 +1,20 @@
 body {
     font-family: sans-serif;
     margin: 0;
-    display: flex;
 }
 
 .container {
     display: flex;
     width: 100vw;
+    height: 100vh;
 }
 
 #sidebar {
-    width: 200px;
+    width: 180px;
+    flex-shrink: 0;
+    /* Prevents the sidebar from being shrunk */
     background-color: #f4f4f4;
     padding: 15px;
-    height: 100vh;
     overflow-y: auto;
 }
 
@@ -32,6 +33,10 @@ body {
 #main-content {
     flex-grow: 1;
     padding: 20px;
+    min-width: 0;
+    /* Prevents table from expanding flex container */
+    overflow-x: auto;
+    /* Allows table to scroll if it overflows */
 }
 
 h1 {
@@ -42,6 +47,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
 }
 
 th,
