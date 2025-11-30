@@ -28,6 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Function to add a remove button to a row
+    const addRemoveButton = (row) => {
+        const newCell = row.insertCell();
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', () => {
+            row.remove();
+        });
+        newCell.appendChild(removeBtn);
+    };
+
+    // --- Add remove buttons to initial rows ---
+    tableBody.querySelectorAll('tr').forEach(addRemoveButton);
+
     // --- Drag and Drop Functionality ---
     tableBody.addEventListener('dragover', (e) => {
         e.preventDefault(); // Allow drop
@@ -117,11 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the "Add Row" button
     addRowBtn.addEventListener('click', () => {
         const newRow = tableBody.insertRow();
-        const columnCount = table.querySelector('thead tr').childElementCount;
+        const columnCount = table.querySelector('thead tr').childElementCount - 1; // -1 for actions column
 
         for (let i = 0; i < columnCount; i++) {
             const newCell = newRow.insertCell();
             newCell.textContent = 'New Data'; // Default text
         }
+        addRemoveButton(newRow);
     });
 });
