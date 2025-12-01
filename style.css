@@ -94,6 +94,28 @@ button {
     cursor: pointer;
 }
 
+.brush-active {
+    background-color: #f0ad4e;
+    color: white;
+    border-color: #eea236;
+}
+
+.painted-top {
+    border-top: 3px solid orange !important;
+}
+
+.painted-right {
+    border-right: 3px solid orange !important;
+}
+
+.painted-bottom {
+    border-bottom: 3px solid orange !important;
+}
+
+.painted-left {
+    border-left: 3px solid orange !important;
+}
+
 .export-hidden {
     display: none !important;
 }

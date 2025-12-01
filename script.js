@@ -24,13 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('exportBtn');
     const addColBtn = document.getElementById('addColBtn');
     const removeColBtn = document.getElementById('removeColBtn');
+    const brushBtn = document.getElementById('brushBtn');
     const sidebar = document.getElementById('sidebar');
     const controls = document.querySelector('.controls');
 
-    if (!table || !addRowBtn || !sidebar || !saveBtn || !openBtn || !fileInput || !exportBtn || !controls || !addColBtn || !removeColBtn) {
+    if (!table || !addRowBtn || !sidebar || !saveBtn || !openBtn || !fileInput || !exportBtn || !controls || !addColBtn || !removeColBtn || !brushBtn) {
         console.error("Required element not found!");
         return;
     }
+
+    let isBrushActive = false;
 
     // --- Image Loading for Sidebar ---
     imageUrls.forEach(url => {
@@ -54,6 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Table body not found!");
         return;
     }
+
+    // --- Brush Functionality ---
+    brushBtn.addEventListener('click', () => {
+        isBrushActive = !isBrushActive;
+        brushBtn.classList.toggle('brush-active');
+    });
 
     // Function to add a remove button to a row
     const addRemoveButton = (row) => {
@@ -144,6 +153,30 @@ document.addEventListener('DOMContentLoaded', () => {
     tableBody.addEventListener('click', (e) => {
         const target = e.target;
         if (target && target.tagName === 'TD') {
+            // If brush is active, handle painting and stop further actions
+            if (isBrushActive) {
+                const rect = target.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const borderThreshold = 8; // How close to an edge to count as a click
+
+                const distances = {
+                    top: y,
+                    bottom: rect.height - y,
+                    left: x,
+                    right: rect.width - x
+                };
+
+                // Find the minimum distance to determine the clicked edge
+                const closestEdge = Object.keys(distances).reduce((a, b) => distances[a] < distances[b] ? a : b);
+
+                if (distances[closestEdge] <= borderThreshold) {
+                    target.classList.toggle(`painted-${closestEdge}`);
+                }
+                return;
+            }
+
             // Prevent editing if cell contains an image
             if (target.querySelector('img')) {
                 return;
@@ -276,6 +309,15 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < cells.length - 1; i++) {
                 const cell = cells[i];
                 const images = cell.querySelectorAll('img');
+
+                // Save which borders are painted
+                const paintedBorders = {
+                    top: cell.classList.contains('painted-top'),
+                    right: cell.classList.contains('painted-right'),
+                    bottom: cell.classList.contains('painted-bottom'),
+                    left: cell.classList.contains('painted-left')
+                };
+
                 if (images.length > 0) {
                     // Convert the full image URL to a relative path for saving
                     const imageUrls = Array.from(images).map(img => {
@@ -289,9 +331,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             return img.getAttribute('src');
                         }
                     });
-                    rowData.push({ type: 'images', content: imageUrls });
+                    rowData.push({ type: 'images', content: imageUrls, paintedBorders: paintedBorders });
                 } else {
-                    rowData.push({ type: 'text', content: cell.textContent });
+                    rowData.push({ type: 'text', content: cell.textContent, paintedBorders: paintedBorders });
                 }
             }
             tableData.push(rowData);
@@ -379,6 +421,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     newCell.appendChild(wrapper);
                 } else {
                     newCell.textContent = cellData.content;
+                }
+                // Restore painted state
+                if (cellData.paintedBorders) {
+                    if (cellData.paintedBorders.top) newCell.classList.add('painted-top');
+                    if (cellData.paintedBorders.right) newCell.classList.add('painted-right');
+                    if (cellData.paintedBorders.bottom) newCell.classList.add('painted-bottom');
+                    if (cellData.paintedBorders.left) newCell.classList.add('painted-left');
                 }
             });
             addRemoveButton(newRow);
