@@ -12,7 +12,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         # Serve index.html for the root path
         if self.path == '/':
-            self.path = '/index.html'
+            self.path = '/static/index.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 # Change to the script's directory to serve files from the correct location
