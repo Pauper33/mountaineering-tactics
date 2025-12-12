@@ -2,8 +2,8 @@ import os
 import re
 
 # --- Configuration ---
-IMAGES_DIR = 'images'
-SCRIPT_FILE = 'script.js'
+IMAGES_DIR = 'static/images'
+SCRIPT_FILE = 'statis/script.js'
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
 # ---
 

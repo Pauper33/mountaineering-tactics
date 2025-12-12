@@ -1,21 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     // --- CONFIGURATION ---
     // Manually list your image files here.
     // Due to browser security, we cannot automatically read files from a folder.
-    const imageUrls = [
-        'images/Вибирати мотузку.png',
-        'images/Видавати мотузку.png',
-        'images/Закріпити мотузку.png',
-        'images/Здійснювати контроль мотузки.png',
-        'images/Здійснювати страховку.png',
-        'images/Маркувати мотузку.png',
-        'images/Наведення, виготовлення.png',
-        'images/Натягування перил.png',
-        'images/Проходження етапу.png',
-        'images/Розібрати етап.png'
-    ];
+    const imageJson = "images/image.json"
     
+    const promiseJson = fetch(imageJson).then(response => response.json())
     const table = document.getElementById('editableTable');
     const addRowBtn = document.getElementById('addRowBtn');
     const saveBtn = document.getElementById('saveBtn');
@@ -36,20 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let isBrushActive = false;
 
     // --- Image Loading for Sidebar ---
-    imageUrls.forEach(url => {
+    promiseJson.then(frames => frames.forEach((frame, index) => { 
         const img = document.createElement('img');
-        img.src = url;
+        img.src = frame.path;
         img.draggable = true;
-
-        // Extract filename for the title attribute
-        const filename = url.substring(url.lastIndexOf('/') + 1);
-        img.title = filename; // This shows the filename on hover
-
+        img.title = frame.name;
         img.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', url);
+            e.dataTransfer.setData('text/plain', frame.path);
         });
         sidebar.appendChild(img);
-    });
+    }));
 
     const tableBody = table.querySelector('tbody');
 
@@ -69,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newCell = row.insertCell();
         const removeBtn = document.createElement('button');
         newCell.className = 'buttonRow';
-        removeBtn.textContent = 'Remove';
+        removeBtn.textContent = 'Видалити часову стадію';
         removeBtn.addEventListener('click', () => {
             row.remove();
         });
