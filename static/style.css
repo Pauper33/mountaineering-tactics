@@ -9,16 +9,6 @@ body {
     height: 100vh;
 }
 
-#icon {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 120px;
-}
-
-
-
 #sidebar {
     width: 180px;
     flex-shrink: 0;
@@ -50,11 +40,7 @@ body {
 }
 
 h1 {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    text-align: center;
 }
 
 table {
